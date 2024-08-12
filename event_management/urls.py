@@ -4,6 +4,7 @@ from users.views import userRegistration, userAuthTokenLogin, userLogout, passwo
 from category.views import create_category, update_category, delete_category, list_categories
 from equipment.views import create_equipment, update_equipment, delete_equipment, list_equipment
 from wallets.views import myTransactionLog, viewWallet, addFunds
+from events.views import list_all_events, list_my_events, create_event, update_event, cancel_event
 
 
 urlpatterns = [
@@ -31,8 +32,11 @@ urlpatterns = [
     path('api/equipment/list/', list_equipment, name='list_equipment'),    
 
     #Events APIs:
-
-
+    path('api/events/create/', create_event, name='create_event'),
+    path('api/events/update/<int:pk>/', update_event, name='update_event'),
+    path('api/events/cancel/<int:pk>/', cancel_event, name='cancel_event'),
+    path('api/events/list/', list_all_events, name='list_all_events'),
+    path('api/events/my-events/', list_my_events, name='list_my_events'),
 
     #Wallet APIs:
     path('api/wallets/my-wallet/', viewWallet, name='viewWallet'),

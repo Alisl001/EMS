@@ -18,6 +18,7 @@ class Event(models.Model):
         ('canceled', 'Canceled'),
     ]
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     date = models.DateField()
