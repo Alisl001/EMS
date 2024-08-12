@@ -45,7 +45,12 @@ INSTALLED_APPS = [
 
 
     'backend',
-    'users,'
+    'users',
+    'category',
+    'equipment',
+    'wallets',
+    
+
 ]
 
 MIDDLEWARE = [

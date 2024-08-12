@@ -56,3 +56,19 @@ class Wallet(models.Model):
 
     def __str__(self):
         return f"Wallet of {self.customer.username} - Balance: S.P{self.balance}"
+
+
+class TransactionLog(models.Model):
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    TRANSACTION_TYPES = [
+        ('deposit', 'Deposit'),
+        ('purchase', 'Purchase'),
+        ('refund', 'Refund'),
+    ]
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
+    description = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Transaction #{self.id} - User: {self.customer.username} - Type: {self.transaction_type} - Amount: {self.amount}"

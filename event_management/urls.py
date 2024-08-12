@@ -1,22 +1,43 @@
-"""
-URL configuration for event_management project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
+from users.views import userRegistration, userAuthTokenLogin, userLogout, passwordResetRequest, passwordResetCodeCheck, passwordResetConfirm, myDetails
+from category.views import create_category, update_category, delete_category, list_categories
+from equipment.views import create_equipment, update_equipment, delete_equipment, list_equipment
+from wallets.views import myTransactionLog, viewWallet, addFunds
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    #User Management APIs:
+    path('api/register/', userRegistration, name='register'),
+    path('api/login/', userAuthTokenLogin, name='login'),
+    path('api/logout/', userLogout, name='logout'),
+    path('api/password-reset-request/', passwordResetRequest, name='password_reset_request'),
+    path('api/password-reset-code-check/', passwordResetCodeCheck, name='password_reset_code_check'),
+    path('api/password-reset-confirm/', passwordResetConfirm, name='password_reset_confirm'),
+    path('api/my-profile/', myDetails, name='my_profile'),
+
+    #Category Management APIs:
+    path('api/categories/create/', create_category, name='create_category'),
+    path('api/categories/update/<int:pk>/', update_category, name='update_category'),
+    path('api/categories/delete/<int:pk>/', delete_category, name='delete_category'),
+    path('api/categories/list/', list_categories, name='list_categories'),
+
+    #Equipment Management APIs:
+    path('api/equipment/create/', create_equipment, name='create_equipment'),
+    path('api/equipment/update/<int:pk>/', update_equipment, name='update_equipment'),
+    path('api/equipment/delete/<int:pk>/', delete_equipment, name='delete_equipment'),
+    path('api/equipment/list/', list_equipment, name='list_equipment'),    
+
+    #Events APIs:
+
+
+
+    #Wallet APIs:
+    path('api/wallets/my-wallet/', viewWallet, name='viewWallet'),
+    path('api/wallets/add-funds/', addFunds, name='addFunds'),
+    path('api/wallets/my-transactions/', myTransactionLog, name='myTransactions'),
+
+
 ]
