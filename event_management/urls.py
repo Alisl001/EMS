@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from users.views import userRegistration, userAuthTokenLogin, userLogout, passwordResetRequest, passwordResetCodeCheck, passwordResetConfirm, myDetails
+from users.views import userRegistration, userAuthTokenLogin, userLogout, updateUserInfo, passwordResetRequest, passwordResetCodeCheck, passwordResetConfirm, myDetails
 from category.views import create_category, update_category, delete_category, list_categories
 from equipment.views import create_equipment, update_equipment, delete_equipment, list_equipment
 from wallets.views import myTransactionLog, viewWallet, addFunds
@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/password-reset-code-check/', passwordResetCodeCheck, name='password_reset_code_check'),
     path('api/password-reset-confirm/', passwordResetConfirm, name='password_reset_confirm'),
     path('api/my-profile/', myDetails, name='my_profile'),
+    path('api/user/update-info/', updateUserInfo, name='updateUserInfo'),
 
     #Category Management APIs:
     path('api/categories/create/', create_category, name='create_category'),

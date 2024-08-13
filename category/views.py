@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from backend.models import Category
@@ -10,12 +10,12 @@ from .serializers import CategorySerializer
 # Create a category (Admin only)
 @api_view(['POST'])
 @authentication_classes([BearerTokenAuthentication])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAdminUser])
 def create_category(request):
     serializer = CategorySerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"detail": "Category created successfully."}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -32,7 +32,7 @@ def update_category(request, pk):
     serializer = CategorySerializer(category, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
+        return Response({"detail": "Category updated successfully."}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -53,8 +53,9 @@ def delete_category(request, pk):
 # List all categories (Accessible to all users)
 @api_view(['GET'])
 @authentication_classes([BearerTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def list_categories(request):
     categories = Category.objects.all()
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
+

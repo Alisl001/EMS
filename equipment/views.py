@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from backend.models import Equipment
@@ -15,7 +15,7 @@ def create_equipment(request):
     serializer = EquipmentSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"detail": "Equipment created successfully."}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -32,7 +32,7 @@ def update_equipment(request, pk):
     serializer = EquipmentSerializer(equipment, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data)
+        return Response({"detail": "Equipment updated successfully."}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -53,7 +53,7 @@ def delete_equipment(request, pk):
 # List all equipment (Accessible to all users)
 @api_view(['GET'])
 @authentication_classes([BearerTokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def list_equipment(request):
     equipment = Equipment.objects.all()
     serializer = EquipmentSerializer(equipment, many=True)

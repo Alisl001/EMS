@@ -9,7 +9,8 @@ from .serializers import (
     UserRegistrationSerializer,
     CustomAuthTokenSerializer,
     UserLoginResponseSerializer,
-    CustomUserSerializer
+    CustomUserSerializer,
+    UserInfoUpdateSerializer
 )
 from .authentication import BearerTokenAuthentication
 
@@ -171,3 +172,21 @@ def myDetails(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# Update user information API
+@api_view(['PUT'])
+@authentication_classes([BearerTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def updateUserInfo(request):
+    user = request.user
+    data = request.data
+
+    required_fields = ['first_name', 'last_name', 'email', 'username']
+    missing_fields = [field for field in required_fields if field not in data]
+    if len(missing_fields) == len(required_fields):
+        return Response({'detail': 'At least one of the following fields is required: first_name, last_name, email, username'}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = UserInfoUpdateSerializer(user, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"detail": "User info updated successfully."}, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,3 +1,4 @@
+from ast import Not
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -6,15 +7,20 @@ from .serializers import EventSerializer, EventCreationSerializer
 from users.authentication import BearerTokenAuthentication
 from rest_framework import status
 from django.utils import timezone
+from backend.models import Wallet, TransactionLog, Equipment, EventEquipment
 
 
 # Helper function to update event status
 def update_event_status(event):
     now = timezone.now()
-    event_start = timezone.datetime.combine(event.date, event.start_time)
-    event_end = timezone.datetime.combine(event.date, event.end_time)
+    
+    # Combine date and time, and make them timezone-aware
+    event_start = timezone.make_aware(timezone.datetime.combine(event.date, event.start_time), timezone.get_current_timezone())
+    event_end = timezone.make_aware(timezone.datetime.combine(event.date, event.end_time), timezone.get_current_timezone())
 
-    if now < event_start:
+    if event.status == 'canceled':
+        event.status == 'canceled'
+    elif now < event_start:
         event.status = 'upcoming'
     elif event_start <= now <= event_end:
         event.status = 'ongoing'
@@ -62,7 +68,7 @@ def create_event(request):
     serializer = EventCreationSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(user=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"detail": "Event created successfully."}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -75,13 +81,15 @@ def update_event(request, pk):
         event = Event.objects.get(pk=pk, user=request.user)
     except Event.DoesNotExist:
         return Response({'detail': 'Event not found or you do not have permission to update this event.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Pass the instance and the request data to the serializer
+    serializer = EventCreationSerializer(instance=event, data=request.data, partial=True)
     
-    serializer = EventCreationSerializer(event, data=request.data)
     if serializer.is_valid():
+        # Let the serializer handle the update logic
         serializer.save()
-        update_event_status(event) 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+        return Response({"detail": "Event updated successfully."}, status=status.HTTP_200_OK)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -95,9 +103,23 @@ def cancel_event(request, pk):
     except Event.DoesNotExist:
         return Response({'detail': 'Event not found or you do not have permission to cancel this event.'}, status=status.HTTP_404_NOT_FOUND)
     
+    wallet = Wallet.objects.get(customer=event.user)
+    wallet.balance += event.total_price
+    wallet.save()
+
+    # Log the refund transaction
+    TransactionLog.objects.create(
+        customer=event.user,
+        amount=event.total_price,
+        transaction_type='refund',
+        description=f"Refund for canceled event: {event.name}"
+    )
+
+    EventEquipment.objects.filter(event=event).delete()
+    
     event.status = 'canceled'
     event.save()
     
-    return Response({'detail': 'Event has been canceled.'}, status=status.HTTP_200_OK)
+    return Response({'detail': 'Event has been canceled and a refund has been issued.'}, status=status.HTTP_200_OK)
 
 
