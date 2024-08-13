@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'category',
     'equipment',
     'wallets',
+    'events',
     
 
 ]
